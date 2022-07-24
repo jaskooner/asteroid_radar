@@ -5,11 +5,11 @@ buildscript {
     ext.version_navigation = '2.5.0'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'com.android.tools.build:gradle:4.0.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$version_navigation"
@@ -21,7 +21,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         
     }
 }
