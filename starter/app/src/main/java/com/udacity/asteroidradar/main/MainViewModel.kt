@@ -1,5 +1,6 @@
 package com.udacity.asteroidradar.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,23 +14,33 @@ import java.time.format.DateTimeFormatter
 
 class MainViewModel : ViewModel() {
 
-    // The internal MutableLiveData String that stores the most recent response
-    val _response = MutableLiveData<String>()
+    private val TAG = ViewModel::class.qualifiedName
 
-    // The external immutable LiveData for the response String
-    val response: LiveData<String>
-        get() = _response
+    // The internal MutableLiveData String that stores the most recent property response
+    private val _propResponse = MutableLiveData<String>()
+
+    // The external immutable LiveData for the property response String
+    val propResponse: LiveData<String>
+        get() = _propResponse
+
+    // The internal MutableLiveData String that stores the Image of the Day response
+    private val _imgOfTheDayResponse = MutableLiveData<String>()
+
+    // The external immutable LiveData for the Image of the Day response
+    val imgOfTheDayResponse: LiveData<String>
+        get() = _imgOfTheDayResponse
 
     /**
      * Call getNeoProperties() on init so we can display status immediately.
+     * CALL GetImgOfTheDay() on init so we can display image immediately
      */
     init {
         getNeoProperties()
+        getImgOfTheDay()
     }
 
     /**
-     * Sets the value of the response LiveData to the Nasa Near Earth Object API status or the successful number of
-     * Nasa Near Earth Objects retrieved.
+     * Sets the value of the property response LiveData to the Nasa Near Earth Object API status
      */
     private fun getNeoProperties() {
 
@@ -44,14 +55,33 @@ class MainViewModel : ViewModel() {
         NeoApi.retrofitService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
             .enqueue(object: Callback<String>{
                 override fun onResponse(call: Call<String>, response: Response<String>) {
-                    _response.value = response.body()
+                    _propResponse.value = response.body()
+                    Log.i(TAG, "getProperties: ${response.body()}")
                 }
 
                 override fun onFailure(call: Call<String>, t: Throwable) {
-                    _response.value = "Failure: ${t.message}"
+                    _propResponse.value = "Failure: ${t.message}"
+                    Log.e(TAG, "getProperties failure: ${t.message}")
                 }
             })
+    }
 
+    /**
+     * Set the value of the image of the day response LiveData to the Nasa Image of the day.
+     */
+    private fun getImgOfTheDay() {
+        NeoApi.retrofitService.getImageOfTheDay(Constants.API_KEY)
+            .enqueue(object: Callback<String>{
+                override fun onResponse(call: Call<String>, response: Response<String>) {
+                    _imgOfTheDayResponse.value = response.body()
+                    Log.i(TAG, "getImageOfTheDay Success: ${response.body()}")
+                }
+
+                override fun onFailure(call: Call<String>, t: Throwable) {
+                    _imgOfTheDayResponse.value = "Failure: ${t.message}"
+                    Log.e(TAG, "getImageOfTheDay Failure: ${t.message}")
+                }
+            })
     }
 
 

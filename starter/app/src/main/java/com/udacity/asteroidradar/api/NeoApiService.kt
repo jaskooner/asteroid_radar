@@ -20,6 +20,9 @@ interface NeoApiService {
         @Query("api_key") apiKey: String) :
         Call<String>
 
+    @GET(Constants.IMG_DAY)
+    fun getImageOfTheDay(@Query("api_key") apiKey: String) : Call<String>
+
 }
 
 object NeoApi {
