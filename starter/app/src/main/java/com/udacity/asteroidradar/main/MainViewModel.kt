@@ -4,8 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.ImageOfTheDay
 import com.udacity.asteroidradar.api.NeoApi
+import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.api.parseImgJsonResult
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,25 +21,40 @@ class MainViewModel : ViewModel() {
 
     private val TAG = ViewModel::class.qualifiedName
 
+
     // The internal MutableLiveData String that stores the most recent property response
-    private val _propResponse = MutableLiveData<String>()
+    private val _propResponse = MutableLiveData<ArrayList<Asteroid>>()
+
+    // Internal status of asteroid json response
+    private val _statusNeo = MutableLiveData<Status>()
+    // External immutable LiveData for the asteroid response status
+    val statusNeo: LiveData<Status>
+        get() = _statusNeo
 
     // The external immutable LiveData for the property response String
-    val propResponse: LiveData<String>
+    val propResponse: LiveData<ArrayList<Asteroid>>
         get() = _propResponse
 
+
+    // Internal status of image of the day reponse
+    private val _statusImg = MutableLiveData<Status>()
+    // External immutable live date for the status of the image of the day respone
+    val statusImg : LiveData<Status>
+        get() = _statusImg
+
     // The internal MutableLiveData String that stores the Image of the Day response
-    private val _imgOfTheDayResponse = MutableLiveData<String>()
+    private val _imgOfTheDay = MutableLiveData<ImageOfTheDay>()
 
     // The external immutable LiveData for the Image of the Day response
-    val imgOfTheDayResponse: LiveData<String>
-        get() = _imgOfTheDayResponse
+    val imgOfTheDay: LiveData<ImageOfTheDay>
+        get() = _imgOfTheDay
 
     /**
      * Call getNeoProperties() on init so we can display status immediately.
      * CALL GetImgOfTheDay() on init so we can display image immediately
      */
     init {
+        _statusNeo.value = Status.NOT_STARTED
         getNeoProperties()
         getImgOfTheDay()
     }
@@ -55,12 +75,18 @@ class MainViewModel : ViewModel() {
         NeoApi.retrofitService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
             .enqueue(object: Callback<String>{
                 override fun onResponse(call: Call<String>, response: Response<String>) {
-                    _propResponse.value = response.body()
-                    Log.i(TAG, "getProperties: ${response.body()}")
+                    // convert json string to json object
+                    val neoJsonObject = JSONObject(response.body())
+                    // get the Neo as Asteroid Object ArrayList from the json object
+                    _propResponse.value = parseAsteroidsJsonResult(neoJsonObject)
+                    // set the success status
+                    _statusNeo.value = Status.SUCCESS
+                    Log.i(TAG, "getProperties(): ${_propResponse.value}")
                 }
 
                 override fun onFailure(call: Call<String>, t: Throwable) {
-                    _propResponse.value = "Failure: ${t.message}"
+                    // set the status
+                    _statusNeo.value = Status.FAILURE
                     Log.e(TAG, "getProperties failure: ${t.message}")
                 }
             })
@@ -73,16 +99,28 @@ class MainViewModel : ViewModel() {
         NeoApi.retrofitService.getImageOfTheDay(Constants.API_KEY)
             .enqueue(object: Callback<String>{
                 override fun onResponse(call: Call<String>, response: Response<String>) {
-                    _imgOfTheDayResponse.value = response.body()
+                    // convert the json string to a json object
+                    val imgOfTheDayJsonObject = JSONObject(response.body())
+                    // parse json object to ImageOfTheDay kotlin object
+                    val img = parseImgJsonResult(imgOfTheDayJsonObject)
+                    _imgOfTheDay.value = img
+                    // set status
+                    _statusImg.value = Status.SUCCESS
                     Log.i(TAG, "getImageOfTheDay Success: ${response.body()}")
                 }
 
                 override fun onFailure(call: Call<String>, t: Throwable) {
-                    _imgOfTheDayResponse.value = "Failure: ${t.message}"
+                    _imgOfTheDay.value = ImageOfTheDay("","","","","","","","")
+                    // set status
+                    _statusImg.value = Status.FAILURE
                     Log.e(TAG, "getImageOfTheDay Failure: ${t.message}")
                 }
             })
     }
 
 
+}
+
+enum class Status {
+    NOT_STARTED, SUCCESS, FAILURE
 }
