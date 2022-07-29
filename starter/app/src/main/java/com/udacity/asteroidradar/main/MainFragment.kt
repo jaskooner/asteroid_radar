@@ -3,10 +3,13 @@ package com.udacity.asteroidradar.main
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.Picasso
+import com.udacity.asteroidradar.ImageOfTheDay
+import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
@@ -27,10 +30,10 @@ class MainFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        viewModel.imgOfTheDay.observe(viewLifecycleOwner, Observer { imgOTD ->
+        viewModel.picOfDay.observe(viewLifecycleOwner, Observer { picOTD ->
             val imageView = binding.activityMainImageOfTheDay
-            if (imgOTD.mediaType == "image") {
-                Picasso.get().load(imgOTD.url).into(imageView)
+            if ( picOTD.mediaType == "image") {
+                setImageViewProps(picOTD, imageView)
             } else {
                 imageView.setImageResource(R.drawable.placeholder_picture_of_day)
                 Log.i(TAG, "No image")
@@ -38,6 +41,17 @@ class MainFragment : Fragment() {
         })
 
         return binding.root
+    }
+
+    private fun setImageViewProps(
+        picOTD: PictureOfDay,
+        imageView: ImageView,
+    ) {
+        // set picture
+        Picasso.get().load(picOTD.url).into(imageView)
+        // set content description
+        imageView.contentDescription = picOTD.title
+        Log.i(TAG, "Content description: ${picOTD.title}")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

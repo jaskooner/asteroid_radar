@@ -6,10 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.ImageOfTheDay
+import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NeoApi
+import com.udacity.asteroidradar.api.PicApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
-import com.udacity.asteroidradar.api.parseImgJsonResult
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -43,11 +43,11 @@ class MainViewModel : ViewModel() {
         get() = _statusImg
 
     // The internal MutableLiveData String that stores the Image of the Day response
-    private val _imgOfTheDay = MutableLiveData<ImageOfTheDay>()
+    private val _pictureOfDay = MutableLiveData<PictureOfDay>()
 
     // The external immutable LiveData for the Image of the Day response
-    val imgOfTheDay: LiveData<ImageOfTheDay>
-        get() = _imgOfTheDay
+    val picOfDay: LiveData<PictureOfDay>
+        get() = _pictureOfDay
 
     /**
      * Call getNeoProperties() on init so we can display status immediately.
@@ -56,7 +56,7 @@ class MainViewModel : ViewModel() {
     init {
         _statusNeo.value = Status.NOT_STARTED
         getNeoProperties()
-        getImgOfTheDay()
+        getPictureOfTheDay()
     }
 
     /**
@@ -72,7 +72,7 @@ class MainViewModel : ViewModel() {
         val formatedStartDate = startDate.format(dateFormatter)
         val formattedEndDate = endDate.format(dateFormatter)
 
-        NeoApi.retrofitService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
+        NeoApi.retrofitStringService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
             .enqueue(object: Callback<String>{
                 override fun onResponse(call: Call<String>, response: Response<String>) {
                     // convert json string to json object
@@ -95,22 +95,17 @@ class MainViewModel : ViewModel() {
     /**
      * Set the value of the image of the day response LiveData to the Nasa Image of the day.
      */
-    private fun getImgOfTheDay() {
-        NeoApi.retrofitService.getImageOfTheDay(Constants.API_KEY)
-            .enqueue(object: Callback<String>{
-                override fun onResponse(call: Call<String>, response: Response<String>) {
-                    // convert the json string to a json object
-                    val imgOfTheDayJsonObject = JSONObject(response.body())
-                    // parse json object to ImageOfTheDay kotlin object
-                    val img = parseImgJsonResult(imgOfTheDayJsonObject)
-                    _imgOfTheDay.value = img
+    private fun getPictureOfTheDay() {
+        PicApi.retrofitPicService.getImageOfTheDay(Constants.API_KEY)
+            .enqueue(object: Callback<PictureOfDay>{
+                override fun onResponse(call: Call<PictureOfDay>, response: Response<PictureOfDay>) {
+                    _pictureOfDay.value = response.body()
                     // set status
                     _statusImg.value = Status.SUCCESS
                     Log.i(TAG, "getImageOfTheDay Success: ${response.body()}")
                 }
 
-                override fun onFailure(call: Call<String>, t: Throwable) {
-                    _imgOfTheDay.value = ImageOfTheDay("","","","","","","","")
+                override fun onFailure(call: Call<PictureOfDay>, t: Throwable) {
                     // set status
                     _statusImg.value = Status.FAILURE
                     Log.e(TAG, "getImageOfTheDay Failure: ${t.message}")
