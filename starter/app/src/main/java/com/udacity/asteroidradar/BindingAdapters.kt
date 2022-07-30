@@ -42,11 +42,15 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
 }
 
 @BindingAdapter("imgOfDay")
-fun bindMainImgOfDay(imageView: ImageView, imgUrl: String?) {
-    imgUrl?.let {
-        Picasso
-            .get()
-            .load(imgUrl)
-            .into(imageView)
+fun bindMainImgOfDay(imageView: ImageView, imgObj: PictureOfDay?) {
+    imgObj?.let {
+        if (imgObj.mediaType == "image") {
+            Picasso
+                .get()
+                .load(imgObj.url)
+                .placeholder(R.drawable.placeholder_picture_of_day)
+                .error(R.drawable.ic_broken_image)
+                .into(imageView)
+        }
     }
 }
