@@ -4,11 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NeoApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -71,45 +73,41 @@ class MainViewModel : ViewModel() {
         val formatedStartDate = startDate.format(dateFormatter)
         val formattedEndDate = endDate.format(dateFormatter)
 
-        NeoApi.retrofitStringService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
-            .enqueue(object: Callback<String>{
-                override fun onResponse(call: Call<String>, response: Response<String>) {
-                    // convert json string to json object
-                    val neoJsonObject = JSONObject(response.body())
-                    // get the Neo as Asteroid Object ArrayList from the json object
-                    _propResponse.value = parseAsteroidsJsonResult(neoJsonObject)
-                    // set the success status
-                    _statusNeo.value = Status.SUCCESS
-                    Log.i(TAG, "getProperties(): ${_propResponse.value}")
-                }
+        viewModelScope.launch {
+            try {
+                val neoJSONOStr = NeoApi.retrofitStringService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
+                val neoJsonObject = JSONObject(neoJSONOStr)
+                _propResponse.value = parseAsteroidsJsonResult(neoJsonObject)
+                _statusNeo.value = Status.SUCCESS
 
-                override fun onFailure(call: Call<String>, t: Throwable) {
-                    // set the status
-                    _statusNeo.value = Status.FAILURE
-                    Log.e(TAG, "getProperties failure: ${t.message}")
-                }
-            })
+                Log.i(TAG, "getProperties(): ${_propResponse.value}")
+            } catch (e: Exception) {
+                _statusNeo.value = Status.FAILURE
+
+                Log.e(TAG, "getProperties() failure: ${e.message}")
+            }
+        }
+
+
     }
 
     /**
      * Set the value of the image of the day response LiveData to the Nasa Image of the day.
      */
     private fun getPictureOfTheDay() {
-        NeoApi.retrofitPicService.getImageOfTheDay(Constants.API_KEY)
-            .enqueue(object: Callback<PictureOfDay>{
-                override fun onResponse(call: Call<PictureOfDay>, response: Response<PictureOfDay>) {
-                    _pictureOfDay.value = response.body()
-                    // set status
-                    _statusImg.value = Status.SUCCESS
-                    Log.i(TAG, "getImageOfTheDay Success: ${response.body()}")
-                }
 
-                override fun onFailure(call: Call<PictureOfDay>, t: Throwable) {
-                    // set status
-                    _statusImg.value = Status.FAILURE
-                    Log.e(TAG, "getImageOfTheDay Failure: ${t.message}")
-                }
-            })
+        viewModelScope.launch {
+            try {
+                _pictureOfDay.value = NeoApi.retrofitPicService.getImageOfTheDay(Constants.API_KEY)
+                _statusImg.value = Status.SUCCESS
+                Log.i(TAG, "getPictureOfTheDay() Success: ${_pictureOfDay.value}")
+            } catch (e: Exception) {
+                _statusImg.value = Status.FAILURE
+                Log.e(TAG, "getImageOfTheDay Failure: ${e.message}")
+            }
+        }
+
+
     }
 
 

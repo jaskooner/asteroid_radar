@@ -22,7 +22,7 @@ private val retrofit_pic= Retrofit.Builder()
 
 interface PicApiService {
     @GET(Constants.IMG_DAY)
-    fun getImageOfTheDay(@Query("api_key") apiKey: String) : Call<PictureOfDay>
+    suspend fun getImageOfTheDay(@Query("api_key") apiKey: String) : PictureOfDay
 }
 
 private val retrofit_str = Retrofit.Builder()
@@ -32,11 +32,11 @@ private val retrofit_str = Retrofit.Builder()
 
 interface NeoApiService {
     @GET(Constants.NEO_PATH)
-    fun getProperties(
+    suspend fun getProperties(
         @Query("start_date") startDate: String,
         @Query("end_date") endDate: String,
         @Query("api_key") apiKey: String) :
-        Call<String>
+        String
 }
 
 object NeoApi {
