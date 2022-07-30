@@ -29,16 +29,6 @@ class MainFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        viewModel.picOfDay.observe(viewLifecycleOwner, Observer { picOTD ->
-            val imageView = binding.activityMainImageOfTheDay
-            if ( picOTD.mediaType == "image") {
-                setImageViewProps(picOTD, imageView)
-            } else {
-                imageView.setImageResource(R.drawable.placeholder_picture_of_day)
-                Log.i(TAG, "No image")
-            }
-        })
-
         return binding.root
     }
 
