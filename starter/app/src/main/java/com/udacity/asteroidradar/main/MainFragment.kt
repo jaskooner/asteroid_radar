@@ -29,6 +29,8 @@ class MainFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
+        binding.asteroidRecycler.adapter = PhotoLinearAdapter()
+
         return binding.root
     }
 
