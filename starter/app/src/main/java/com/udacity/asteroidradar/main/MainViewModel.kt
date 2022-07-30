@@ -8,7 +8,6 @@ import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NeoApi
-import com.udacity.asteroidradar.api.PicApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import org.json.JSONObject
 import retrofit2.Call
