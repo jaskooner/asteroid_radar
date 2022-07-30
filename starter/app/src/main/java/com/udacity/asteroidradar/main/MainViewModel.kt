@@ -96,7 +96,7 @@ class MainViewModel : ViewModel() {
      * Set the value of the image of the day response LiveData to the Nasa Image of the day.
      */
     private fun getPictureOfTheDay() {
-        PicApi.retrofitPicService.getImageOfTheDay(Constants.API_KEY)
+        NeoApi.retrofitPicService.getImageOfTheDay(Constants.API_KEY)
             .enqueue(object: Callback<PictureOfDay>{
                 override fun onResponse(call: Call<PictureOfDay>, response: Response<PictureOfDay>) {
                     _pictureOfDay.value = response.body()

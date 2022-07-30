@@ -25,12 +25,6 @@ interface PicApiService {
     fun getImageOfTheDay(@Query("api_key") apiKey: String) : Call<PictureOfDay>
 }
 
-object PicApi {
-    val retrofitPicService : PicApiService by lazy {
-        retrofit_pic.create(PicApiService::class.java)
-    }
-}
-
 private val retrofit_str = Retrofit.Builder()
     .addConverterFactory(ScalarsConverterFactory.create())
     .baseUrl(Constants.BASE_URL)
@@ -48,6 +42,10 @@ interface NeoApiService {
 object NeoApi {
     val retrofitStringService : NeoApiService by lazy {
         retrofit_str.create(NeoApiService::class.java)
+    }
+
+    val retrofitPicService : PicApiService by lazy {
+        retrofit_pic.create(PicApiService::class.java)
     }
 }
 
