@@ -36,13 +36,13 @@
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:textColor="@android:color/white"
-                android:textStyle="bold"
-                android:textSize="20sp"
                 android:layout_gravity="bottom"
                 android:background="#55010613"
-                android:text="@string/image_of_the_day" />
+                android:padding="16dp"
+                android:text="@string/image_of_the_day"
+                android:textColor="#3949AB"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -59,7 +59,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
-            android:id="@+id/status_loading_wheel"
+            android:id="@+id/status_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"

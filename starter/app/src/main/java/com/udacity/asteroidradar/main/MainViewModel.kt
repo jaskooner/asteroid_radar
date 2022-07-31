@@ -47,6 +47,12 @@ class MainViewModel : ViewModel() {
     val picOfDay: LiveData<PictureOfDay>
         get() = _pictureOfDay
 
+    // Navigate to selected asteroid detail screen
+    private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid>()
+
+    val navigateToSelectedAsteroid : LiveData<Asteroid>
+        get() = _navigateToSelectedAsteroid
+
     /**
      * Call getNeoProperties() on init so we can display status immediately.
      * CALL GetImgOfTheDay() on init so we can display image immediately
@@ -56,6 +62,16 @@ class MainViewModel : ViewModel() {
         getNeoProperties()
         getPictureOfTheDay()
     }
+
+    // Functions to navigate to asteroid details
+    fun displayToAsteroidDetails(asteroid: Asteroid) {
+        _navigateToSelectedAsteroid.value = asteroid
+    }
+
+    fun displayPropertyDetailsComplete() {
+        _navigateToSelectedAsteroid.value = null
+    }
+
 
     /**
      * Sets the value of the property response LiveData to the Nasa Near Earth Object API status

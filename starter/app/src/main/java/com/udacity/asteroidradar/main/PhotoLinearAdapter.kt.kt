@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.databinding.LinearViewItemBinding
 
-class PhotoLinearAdapter : ListAdapter<Asteroid, PhotoLinearAdapter.AsteroidViewHolder>(DiffCallback) {
+class PhotoLinearAdapter(val onClickListener: OnClickListener) : ListAdapter<Asteroid, PhotoLinearAdapter.AsteroidViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoLinearAdapter.AsteroidViewHolder {
         return AsteroidViewHolder(LinearViewItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -17,6 +17,9 @@ class PhotoLinearAdapter : ListAdapter<Asteroid, PhotoLinearAdapter.AsteroidView
     override fun onBindViewHolder(holder: PhotoLinearAdapter.AsteroidViewHolder, position: Int) {
         val asteroid = getItem(position)
         holder.bind(asteroid)
+        holder.itemView.setOnClickListener{
+            onClickListener.onClick(asteroid)
+        }
     }
 
     class AsteroidViewHolder(private var binding: LinearViewItemBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -35,4 +38,9 @@ class PhotoLinearAdapter : ListAdapter<Asteroid, PhotoLinearAdapter.AsteroidView
             return oldItem.id == newItem.id
         }
     }
+
+    class OnClickListener(val clickListener: (asteroid: Asteroid) -> Unit) {
+        fun onClick(asteroid: Asteroid) = clickListener(asteroid)
+    }
 }
+
