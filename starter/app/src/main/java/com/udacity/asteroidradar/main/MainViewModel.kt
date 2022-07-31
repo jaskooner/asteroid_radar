@@ -1,31 +1,28 @@
 package com.udacity.asteroidradar.main
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NeoApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.database.getDatabase
+import com.udacity.asteroidradar.repository.AsteroidsRepository
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class MainViewModel : ViewModel() {
+class MainViewModel(app: Application) : ViewModel() {
 
     private val TAG = ViewModel::class.qualifiedName
 
+    private val database = getDatabase(app)
+    private val asteroidRepository = AsteroidsRepository(database)
 
-    // The internal MutableLiveData String that stores the most recent property response
-    private val _propResponse = MutableLiveData<List<Asteroid>>()
-    // The external immutable LiveData for the property response String
-    val propResponse: LiveData<List<Asteroid>>
-        get() = _propResponse
-
+    val propResponse = asteroidRepository.asteroids
 
     // Internal status of asteroid json response
     private val _statusNeo = MutableLiveData<NeoStatus>()
@@ -59,8 +56,11 @@ class MainViewModel : ViewModel() {
      */
     init {
         _statusNeo.value = NeoStatus.NOT_STARTED
-        getNeoProperties()
         getPictureOfTheDay()
+
+        viewModelScope.launch {
+            asteroidRepository.refreshAsteroids()
+        }
     }
 
     // Functions to navigate to asteroid details
@@ -73,37 +73,7 @@ class MainViewModel : ViewModel() {
     }
 
 
-    /**
-     * Sets the value of the property response LiveData to the Nasa Near Earth Object API status
-     */
-    private fun getNeoProperties() {
 
-        val dateFormatter = DateTimeFormatter.ofPattern(Constants.API_QUERY_DATE_FORMAT)
-
-        var startDate = LocalDateTime.now()
-        val endDate = startDate.plusDays(7)
-
-        val formatedStartDate = startDate.format(dateFormatter)
-        val formattedEndDate = endDate.format(dateFormatter)
-
-        viewModelScope.launch {
-            try {
-                val neoJSONOStr = NeoApi.retrofitStringService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
-                val neoJsonObject = JSONObject(neoJSONOStr)
-                _propResponse.value = parseAsteroidsJsonResult(neoJsonObject)
-                _statusNeo.value = NeoStatus.SUCCESS
-
-                Log.i(TAG, "getProperties(): ${_propResponse.value}")
-            } catch (e: Exception) {
-                _statusNeo.value = NeoStatus.FAILURE
-                _propResponse.value = mutableListOf<Asteroid>()
-
-                Log.e(TAG, "getProperties() failure: ${e.message}")
-            }
-        }
-
-
-    }
 
     /**
      * Set the value of the image of the day response LiveData to the Nasa Image of the day.
@@ -130,4 +100,17 @@ class MainViewModel : ViewModel() {
 
 enum class NeoStatus {
     NOT_STARTED, SUCCESS, FAILURE
+}
+
+/**
+ * Factory for constructing MainViewModel with parameter
+ */
+class MainViewModelFactory(val app: Application) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MainViewModel(app) as T
+        }
+        throw IllegalArgumentException("Unable to construct viewmodel")
+    }
 }
