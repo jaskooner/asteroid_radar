@@ -3,6 +3,8 @@ package com.udacity.asteroidradar.database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.udacity.asteroidradar.Asteroid
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Entity
 data class DatabaseAsteroid constructor(
@@ -41,3 +43,4 @@ fun ArrayList<Asteroid>.asDatabaseModel(): Array<DatabaseAsteroid> {
         )
     }.toTypedArray()
 }
+
