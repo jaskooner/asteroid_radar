@@ -1,10 +1,12 @@
 package com.udacity.asteroidradar
 
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
+import com.udacity.asteroidradar.main.NeoStatus
 import com.udacity.asteroidradar.main.PhotoLinearAdapter
 
 @BindingAdapter("statusIcon")
@@ -61,4 +63,22 @@ fun bindMainImgOfDay(imageView: ImageView, imgObj: PictureOfDay?) {
 fun bindRecyclerView(recyclerView: RecyclerView, data: ArrayList<Asteroid>?) {
     val adapter = recyclerView.adapter as PhotoLinearAdapter
     adapter.submitList(data)
+}
+
+@BindingAdapter("neoApiStatus")
+fun bindStatus(statusImageView: ImageView, status: NeoStatus?) {
+    when (status) {
+        NeoStatus.NOT_STARTED -> {
+            statusImageView.visibility = View.VISIBLE
+            statusImageView.setImageResource(R.drawable.loading_animation)
+        }
+        NeoStatus.FAILURE -> {
+            statusImageView.visibility = View.VISIBLE
+            statusImageView.setImageResource(R.drawable.ic_connection_error)
+        }
+        NeoStatus.SUCCESS -> {
+            statusImageView.visibility = View.GONE
+        }
+        else -> {}
+    }
 }

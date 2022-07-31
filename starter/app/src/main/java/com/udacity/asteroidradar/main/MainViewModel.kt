@@ -12,9 +12,6 @@ import com.udacity.asteroidradar.api.NeoApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -27,9 +24,9 @@ class MainViewModel : ViewModel() {
     private val _propResponse = MutableLiveData<ArrayList<Asteroid>>()
 
     // Internal status of asteroid json response
-    private val _statusNeo = MutableLiveData<Status>()
+    private val _statusNeo = MutableLiveData<NeoStatus>()
     // External immutable LiveData for the asteroid response status
-    val statusNeo: LiveData<Status>
+    val statusNeo: LiveData<NeoStatus>
         get() = _statusNeo
 
     // The external immutable LiveData for the property response String
@@ -38,9 +35,9 @@ class MainViewModel : ViewModel() {
 
 
     // Internal status of image of the day reponse
-    private val _statusImg = MutableLiveData<Status>()
+    private val _statusImg = MutableLiveData<NeoStatus>()
     // External immutable live date for the status of the image of the day respone
-    val statusImg : LiveData<Status>
+    val statusImg : LiveData<NeoStatus>
         get() = _statusImg
 
     // The internal MutableLiveData String that stores the Image of the Day response
@@ -55,7 +52,7 @@ class MainViewModel : ViewModel() {
      * CALL GetImgOfTheDay() on init so we can display image immediately
      */
     init {
-        _statusNeo.value = Status.NOT_STARTED
+        _statusNeo.value = NeoStatus.NOT_STARTED
         getNeoProperties()
         getPictureOfTheDay()
     }
@@ -78,11 +75,12 @@ class MainViewModel : ViewModel() {
                 val neoJSONOStr = NeoApi.retrofitStringService.getProperties(formatedStartDate, formattedEndDate, Constants.API_KEY)
                 val neoJsonObject = JSONObject(neoJSONOStr)
                 _propResponse.value = parseAsteroidsJsonResult(neoJsonObject)
-                _statusNeo.value = Status.SUCCESS
+                _statusNeo.value = NeoStatus.SUCCESS
 
                 Log.i(TAG, "getProperties(): ${_propResponse.value}")
             } catch (e: Exception) {
-                _statusNeo.value = Status.FAILURE
+                _statusNeo.value = NeoStatus.FAILURE
+                _propResponse.value = ArrayList()
 
                 Log.e(TAG, "getProperties() failure: ${e.message}")
             }
@@ -99,10 +97,11 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _pictureOfDay.value = NeoApi.retrofitPicService.getImageOfTheDay(Constants.API_KEY)
-                _statusImg.value = Status.SUCCESS
+                _statusImg.value = NeoStatus.SUCCESS
                 Log.i(TAG, "getPictureOfTheDay() Success: ${_pictureOfDay.value}")
             } catch (e: Exception) {
-                _statusImg.value = Status.FAILURE
+                _statusImg.value = NeoStatus.FAILURE
+                _pictureOfDay.value = null
                 Log.e(TAG, "getImageOfTheDay Failure: ${e.message}")
             }
         }
@@ -113,6 +112,6 @@ class MainViewModel : ViewModel() {
 
 }
 
-enum class Status {
+enum class NeoStatus {
     NOT_STARTED, SUCCESS, FAILURE
 }
