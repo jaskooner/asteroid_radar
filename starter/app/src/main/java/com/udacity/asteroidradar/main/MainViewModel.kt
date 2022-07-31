@@ -21,7 +21,11 @@ class MainViewModel : ViewModel() {
 
 
     // The internal MutableLiveData String that stores the most recent property response
-    private val _propResponse = MutableLiveData<ArrayList<Asteroid>>()
+    private val _propResponse = MutableLiveData<List<Asteroid>>()
+    // The external immutable LiveData for the property response String
+    val propResponse: LiveData<List<Asteroid>>
+        get() = _propResponse
+
 
     // Internal status of asteroid json response
     private val _statusNeo = MutableLiveData<NeoStatus>()
@@ -29,9 +33,6 @@ class MainViewModel : ViewModel() {
     val statusNeo: LiveData<NeoStatus>
         get() = _statusNeo
 
-    // The external immutable LiveData for the property response String
-    val propResponse: LiveData<ArrayList<Asteroid>>
-        get() = _propResponse
 
 
     // Internal status of image of the day reponse
@@ -42,7 +43,6 @@ class MainViewModel : ViewModel() {
 
     // The internal MutableLiveData String that stores the Image of the Day response
     private val _pictureOfDay = MutableLiveData<PictureOfDay>()
-
     // The external immutable LiveData for the Image of the Day response
     val picOfDay: LiveData<PictureOfDay>
         get() = _pictureOfDay
@@ -96,7 +96,7 @@ class MainViewModel : ViewModel() {
                 Log.i(TAG, "getProperties(): ${_propResponse.value}")
             } catch (e: Exception) {
                 _statusNeo.value = NeoStatus.FAILURE
-                _propResponse.value = ArrayList()
+                _propResponse.value = mutableListOf<Asteroid>()
 
                 Log.e(TAG, "getProperties() failure: ${e.message}")
             }

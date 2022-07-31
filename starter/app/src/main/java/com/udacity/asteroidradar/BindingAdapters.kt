@@ -60,7 +60,7 @@ fun bindMainImgOfDay(imageView: ImageView, imgObj: PictureOfDay?) {
 }
 
 @BindingAdapter("listdata")
-fun bindRecyclerView(recyclerView: RecyclerView, data: ArrayList<Asteroid>?) {
+fun bindRecyclerView(recyclerView: RecyclerView, data: List<Asteroid>?) {
     val adapter = recyclerView.adapter as PhotoLinearAdapter
     adapter.submitList(data)
 }
