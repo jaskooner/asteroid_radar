@@ -45,6 +45,18 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
     textView.text = String.format(context.getString(R.string.km_s_unit_format), number)
 }
 
+
+@BindingAdapter("imgOfDayText")
+fun bindTextViewToDisplayImgOfDay(textView: TextView, imgObj: PictureOfDay?) {
+    imgObj?.let {
+        if (imgObj.mediaType == "image") {
+            textView.text = imgObj.title
+        } else {
+            textView.text = "Image of the day"
+        }
+    }
+}
+
 @BindingAdapter("imgOfDay")
 fun bindMainImgOfDay(imageView: ImageView, imgObj: PictureOfDay?) {
     imgObj?.let {

@@ -12,7 +12,7 @@ interface AsteroidDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg asteroid: DatabaseAsteroid)
 
-    @Query("SELECT * FROM databaseasteroid ORDER BY datetime(closeApproachDate)")
+    @Query("SELECT * FROM databaseasteroid WHERE datetime(closeApproachDate) >= datetime() ORDER BY datetime(closeApproachDate)")
     fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
 
 }
